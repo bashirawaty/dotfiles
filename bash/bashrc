@@ -1,0 +1,82 @@
+# ----- history -----
+export HISTCONTROL=ignoredups:erasedups
+export HISTSIZE=5000
+export HISTFILESIZE=10000
+shopt -s histappend
+shopt -s cmdhist
+shopt -s checkwinsize
+
+# ----- OS detection -----
+OS="$(uname -s)"
+
+case "$OS" in
+  Linux)
+    alias open='xdg-open'
+    ;;
+  Darwin)
+    alias ls='ls -G'
+    alias open='open'
+    ;;
+esac
+
+# ----- ls improvements -----
+if command -v exa >/dev/null 2>&1; then
+  alias ls='exa --group-directories-first'
+else
+  alias ls='ls --color=auto'
+fi
+
+alias ll='ls -lh'
+alias la='ls -A'
+alias l='ls'
+
+# ----- prompt -----
+parse_git_branch() {
+  git branch 2>/dev/null | sed -n '/\* /s///p'
+}
+
+PS1='
+
+\[\e[32m\]
+
+\u@\h
+
+\[\e[0m\]
+
+:
+
+\[\e[34m\]
+
+\w
+
+\[\e[33m\]
+
+$(parse_git_branch)
+
+\[\e[0m\]
+
+\$ '
+
+# ----- PATH -----
+[ -d "$HOME/bin" ] && PATH="$HOME/bin:$PATH"
+[ -d "/opt/homebrew/bin" ] && PATH="/opt/homebrew/bin:$PATH"
+
+# ----- aliases -----
+alias ..='cd ..'
+alias ...='cd ../..'
+alias grep='grep --color=auto'
+alias df='df -h'
+alias du='du -h'
+
+# ----- tmux helpers -----
+alias t='tmux'
+alias ta='tmux attach -t'
+alias tn='tmux new -s'
+alias tls='tmux ls'
+
+# auto attach/create tmux session
+if command -v tmux >/dev/null 2>&1; then
+  if [ -z "$TMUX" ] && [ -t 1 ]; then
+    tmux attach -t main 2>/dev/null || tmux new -s main
+  fi
+fi
