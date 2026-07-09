@@ -75,8 +75,8 @@ alias tn='tmux new -s'
 alias tls='tmux ls'
 
 # auto attach/create tmux session
-if command -v tmux >/dev/null 2>&1; then
-  if [ -z "$TMUX" ] && [ -t 1 ]; then
-    tmux attach -t main 2>/dev/null || tmux new -s main
-  fi
-fi
+#if command -v tmux >/dev/null 2>&1; then
+ # if [ -z "$TMUX" ] && [ -t 1 ]; then
+  #  tmux attach -t main 2>/dev/null || tmux new -s main
+  #fi
+#fi
