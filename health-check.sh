@@ -7,7 +7,32 @@
 
 set -e
 
-DOTFILES="$HOME/dotfiles"
+# ---------------------------------------------------------
+# SELF-HEALING DOTFILES PATH DETECTOR
+# ---------------------------------------------------------
+
+# 1. If script is inside ~/.dotfiles, use that
+if [[ -d "$HOME/.dotfiles" ]]; then
+    DOTFILES="$HOME/.dotfiles"
+
+# 2. If script is being run from inside the repo, detect dynamically
+elif [[ -n "$BASH_SOURCE" ]]; then
+    DOTFILES="$(cd "$(dirname "$BASH_SOURCE")" && pwd)"
+
+# 3. If script is run via sh ./script.sh, fallback to PWD
+else
+    DOTFILES="$(pwd)"
+fi
+
+# 4. Final validation
+if [[ ! -d "$DOTFILES" ]]; then
+    echo "🟥 ERROR: Dotfiles directory not found."
+    echo "Expected at: ~/.dotfiles OR script location."
+    exit 1
+fi
+
+echo "🟩 Dotfiles directory detected: $DOTFILES"
+
 timestamp=$(date +"%Y-%m-%d-%H-%M")
 
 echo "🔍 Detecting OS..."
