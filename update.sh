@@ -1,110 +1,128 @@
 #!/usr/bin/env bash
 
-##############################################
-#  Bashir Awaty — Cross‑Platform Dotfiles Updater
-#  Safe re-symlinking + plugin updates
-##############################################
-
 set -e
 
-DOTFILES="$HOME/dotfiles"
-timestamp=$(date +"%Y-%m-%d-%H-%M")
+# ---------------------------------------------------------
+# PATHS
+# ---------------------------------------------------------
+DOTFILES="$HOME/.dotfiles"
+CONFIG="$HOME/.config"
 
-echo "🔍 Detecting OS..."
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    OS="mac"
-    echo "🟦 macOS detected"
-else
-    OS="linux"
-    echo "🟩 Linux detected"
-fi
-
-##############################################
-# Pull latest dotfiles
-##############################################
-
-echo "⬇️ Pulling latest dotfiles..."
-cd "$DOTFILES"
-git pull --rebase
-
-##############################################
-# Safe symlink function (does NOT overwrite real files)
-##############################################
-
-safe_symlink() {
-    local target="$1"
-    local link="$2"
-
-    if [[ -L "$link" ]]; then
-        echo "🔁 Updating symlink: $link"
-        ln -sf "$target" "$link"
-    elif [[ -f "$link" ]]; then
-        echo "🛑 Skipping $link (real file detected — not a symlink)"
-        echo "   If you want to replace it, run install.sh instead."
-    else
-        echo "🔗 Creating new symlink: $link"
-        ln -sf "$target" "$link"
-    fi
+log() {
+    echo -e "🔧 $1"
 }
 
-##############################################
-# Re-symlink dotfiles safely
-##############################################
+ok() {
+    echo -e "🟩 $1"
+}
 
-echo "🔗 Updating symlinks..."
+err() {
+    echo -e "🟥 $1"
+}
 
-safe_symlink "$DOTFILES/bash/bashrc" "$HOME/.bashrc"
-safe_symlink "$DOTFILES/zsh/zshrc" "$HOME/.zshrc"
-safe_symlink "$DOTFILES/tmux/tmux.conf" "$HOME/.tmux.conf"
+# ---------------------------------------------------------
+# OS DETECTION
+# ---------------------------------------------------------
+detect_os() {
+    log "Detecting OS..."
 
-mkdir -p "$HOME/.config/nvim"
-safe_symlink "$DOTFILES/nvim/init.lua" "$HOME/.config/nvim/init.lua"
-safe_symlink "$DOTFILES/nvim/lua" "$HOME/.config/nvim/lua"
+    case "$(uname -s)" in
+        Darwin)
+            OS="mac"
+            ok "macOS detected"
+            ;;
+        Linux)
+            OS="linux"
+            ok "Linux detected"
+            ;;
+        *)
+            err "Unsupported OS"
+            exit 1
+            ;;
+    esac
+}
 
-##############################################
-# Update Zsh plugins (zinit)
-##############################################
+# ---------------------------------------------------------
+# VERIFY DOTFILES DIRECTORY
+# ---------------------------------------------------------
+verify_dotfiles() {
+    log "Checking dotfiles directory..."
 
-echo "⚙️ Updating Zsh plugins (zinit)..."
+    if [[ ! -d "$DOTFILES" ]]; then
+        err "Dotfiles directory not found at $DOTFILES"
+        echo "Expected location: ~/.dotfiles"
+        echo "Fix: Clone your repo into ~/.dotfiles"
+        exit 1
+    fi
 
-if [[ -d "$HOME/.zinit" ]]; then
-    zsh -c "source $HOME/.zinit/bin/zinit.zsh; zinit self-update; zinit update"
-else
-    echo "⚠️ zinit not installed — skipping"
-fi
+    ok "Dotfiles directory found"
+}
 
-##############################################
-# Update Tmux plugins (TPM)
-##############################################
+# ---------------------------------------------------------
+# PULL LATEST CHANGES
+# ---------------------------------------------------------
+pull_latest() {
+    log "Pulling latest dotfiles..."
+    cd "$DOTFILES"
+    git pull --rebase
+    ok "Dotfiles updated"
+}
 
-echo "⚙️ Updating Tmux plugins (TPM)..."
+# ---------------------------------------------------------
+# REFRESH SYMLINKS
+# ---------------------------------------------------------
+refresh_symlinks() {
+    log "Refreshing symlinks..."
 
-if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
-    "$HOME/.tmux/plugins/tpm/bin/update_plugins" all
-else
-    echo "⚠️ TPM not installed — skipping"
-fi
+    # Backup existing files
+    for file in .zshrc .bashrc .tmux.conf; do
+        if [[ -f "$HOME/$file" ]]; then
+            mv "$HOME/$file" "$HOME/$file.backup-$(date +%Y%m%d-%H%M)"
+        fi
+    done
 
-##############################################
-# Update Neovim plugins (lazy.nvim)
-##############################################
+    ln -sf "$DOTFILES/zsh/zshrc" "$HOME/.zshrc"
+    ln -sf "$DOTFILES/bash/bashrc" "$HOME/.bashrc"
+    ln -sf "$DOTFILES/tmux/tmux.conf" "$HOME/.tmux.conf"
 
-echo "⚙️ Updating Neovim plugins (lazy.nvim)..."
+    mkdir -p "$CONFIG"
+    ln -sf "$DOTFILES/nvim" "$CONFIG/nvim"
 
-if command -v nvim >/dev/null 2>&1; then
-    nvim --headless "+Lazy! sync" +qa
-else
-    echo "⚠️ Neovim not installed — skipping"
-fi
+    ok "Symlinks refreshed"
+}
 
-##############################################
-# Final message
-##############################################
+# ---------------------------------------------------------
+# UPDATE PLUGIN MANAGERS
+# ---------------------------------------------------------
+update_plugins() {
+    log "Updating plugin managers..."
 
-echo ""
-echo "🎉 Update complete!"
-echo "➡️ All symlinks refreshed safely."
-echo "➡️ All plugins updated (Zsh, Tmux, Neovim)."
-echo "➡️ Dotfiles pulled from GitHub."
-echo ""
-echo "Your system is now fully up to date, Bashir."
+    # Zinit
+    if [[ -d "$HOME/.local/share/zinit" ]]; then
+        zsh -c "source ~/.zshrc; zinit self-update; zinit update"
+    fi
+
+    # TPM
+    if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
+        "$HOME/.tmux/plugins/tpm/bin/update_plugins" all
+    fi
+
+    # lazy.nvim
+    if [[ -d "$CONFIG/nvim/lazy" ]]; then
+        nvim --headless "+Lazy! sync" +qa
+    fi
+
+    ok "Plugins updated"
+}
+
+# ---------------------------------------------------------
+# MAIN
+# ---------------------------------------------------------
+detect_os
+verify_dotfiles
+pull_latest
+refresh_symlinks
+update_plugins
+
+ok "Update complete 🎉"
+echo "Restart your terminal to apply changes."
