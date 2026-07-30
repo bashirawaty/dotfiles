@@ -31,5 +31,9 @@ link ssh/templates.conf .ssh/templates.conf
 link ssh/agent.sh .ssh/agent.sh
 chmod 600 "$HOME/.ssh/config"
 
+# Git
+link git/gitconfig .gitconfig
+link git/gitignore_global .gitignore_global
+
 
 echo "Dotfiles installed successfully."
