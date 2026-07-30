@@ -39,4 +39,7 @@ link git/gitignore_global .gitignore_global
 mkdir -p "$HOME/.config/gh"
 link git/gh.conf .config/gh/config.yml
 
+# Git delta config
+link git/delta.conf .gitconfig_delta
+
 echo "Dotfiles installed successfully."
