@@ -1,4 +1,9 @@
-# macOS loads bash_profile instead of bashrc for login shells
+# ------------------------------------------------------------------------------
+# bash_profile — login shell initializer for macOS and Linux.
+# Loads .bashrc so all interactive features work in login shells.
+# ------------------------------------------------------------------------------
+
+# Load .bashrc if it exists
 if [ -f "$HOME/.bashrc" ]; then
-  source "$HOME/.bashrc"
+    source "$HOME/.bashrc"
 fi
