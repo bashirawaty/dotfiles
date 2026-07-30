@@ -1,27 +1,26 @@
 #!/usr/bin/env bash
-
-##############################################
-#  Bashir Awaty — Simple Dotfiles Installer
-##############################################
+# ------------------------------------------------------------------------------
+# install.sh — symlink installer for dotfiles.
+# Creates ~/.bashrc, ~/.bash_profile, ~/.tmux.conf from repo files.
+# ------------------------------------------------------------------------------
 
 set -e
 
 DOTFILES="$HOME/dotfiles"
 
-echo "🔗 Creating symlinks for dotfiles..."
+link() {
+  src="$DOTFILES/$1"
+  dest="$HOME/$2"
 
-# Create directories if they don't exist
-mkdir -p "$HOME/.config/nvim"
+  echo "Linking $src → $dest"
+  ln -sf "$src" "$dest"
+}
 
-# Link shell config files
-ln -sf "$DOTFILES/bash/bashrc" "$HOME/.bashrc"
-ln -sf "$DOTFILES/zsh/zshrc" "$HOME/.zshrc"
+# Bash
+link bash/bashrc .bashrc
+link bash/bash_profile .bash_profile
 
-# Link tmux config
-ln -sf "$DOTFILES/tmux/tmux.conf" "$HOME/.tmux.conf"
+# tmux
+link tmux/tmux.conf .tmux.conf
 
-# Link Neovim config
-ln -sf "$DOTFILES/nvim/init.lua" "$HOME/.config/nvim/init.lua"
-
-echo "✅ Symlinks created successfully!"
-echo "Restart your terminal or source your shell config to apply changes."
+echo "Dotfiles installed successfully."
