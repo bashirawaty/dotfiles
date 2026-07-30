@@ -35,5 +35,8 @@ chmod 600 "$HOME/.ssh/config"
 link git/gitconfig .gitconfig
 link git/gitignore_global .gitignore_global
 
+# GitHub CLI config
+mkdir -p "$HOME/.config/gh"
+link git/gh.conf .config/gh/config.yml
 
 echo "Dotfiles installed successfully."
