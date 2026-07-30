@@ -42,4 +42,10 @@ link git/gh.conf .config/gh/config.yml
 # Git delta config
 link git/delta.conf .gitconfig_delta
 
+# Git hooks
+mkdir -p "$HOME/.git-template/hooks"
+link git/hooks/pre-commit .git-template/hooks/pre-commit
+git config --global init.templatedir '~/.git-template'
+chmod +x "$HOME/.git-template/hooks/pre-commit"
+
 echo "Dotfiles installed successfully."
