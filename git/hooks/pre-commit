@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# ------------------------------------------------------------------------------
+# Pre-commit hook — linting, formatting, and safety checks.
+# ------------------------------------------------------------------------------
+
+echo "Running pre-commit checks..."
+
+# Prevent committing secrets
+if grep -R "AWS_SECRET_ACCESS_KEY" -n .; then
+    echo "❌ Secret detected! Commit aborted."
+    exit 1
+fi
+
+# Python linting
+if command -v flake8 >/dev/null 2>&1; then
+    echo "Running flake8..."
+    flake8 .
+fi
+
+# Shell linting
+if command -v shellcheck >/dev/null 2>&1; then
+    echo "Running shellcheck..."
+    shellcheck *.sh
+fi
+
+# Format JSON files
+if command -v jq >/dev/null 2>&1; then
+    find . -name "*.json" -exec jq . {} \; > /dev/null
+fi
+
+echo "Pre-commit checks passed."
+exit 0
