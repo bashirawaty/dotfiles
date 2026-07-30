@@ -23,4 +23,13 @@ link bash/bash_profile .bash_profile
 # tmux
 link tmux/tmux.conf .tmux.conf
 
+# SSH
+mkdir -p "$HOME/.ssh"
+link ssh/config .ssh/config
+link ssh/hardening.conf .ssh/hardening.conf
+link ssh/templates.conf .ssh/templates.conf
+link ssh/agent.sh .ssh/agent.sh
+chmod 600 "$HOME/.ssh/config"
+
+
 echo "Dotfiles installed successfully."
