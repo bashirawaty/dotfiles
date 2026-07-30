@@ -1,51 +1,40 @@
 # ------------------------------------------------------------------------------
-# SSH configuration — cross‑platform for Linux + macOS.
-# Provides host shortcuts, secure defaults, key management, and QoL improvements.
-# Place this file at: ~/.ssh/config
+# SSH configuration — secure, modern, cross-platform.
+# Includes: hardening, host templates, agent integration, and QoL improvements.
 # ------------------------------------------------------------------------------
 
-# Use modern, secure defaults for all hosts
-Host *
-    ForwardAgent no                 # Disable agent forwarding for security
-    ForwardX11 no                   # Disable X11 forwarding unless needed
-    ServerAliveInterval 30          # Keep connection alive every 30 seconds
-    ServerAliveCountMax 5           # Drop connection after 5 failed keepalives
-    HashKnownHosts yes              # Hash hostnames in known_hosts for privacy
-    AddKeysToAgent yes              # Auto-add keys to ssh-agent
-    UseKeychain yes                 # macOS: store passphrases in keychain
-    ControlMaster auto              # Reuse SSH connections for speed
-    ControlPersist yes              # Keep master connection alive
-    ControlPath ~/.ssh/ctl-%r@%h:%p # Path for multiplexed connections
+Include ~/.ssh/hardening.conf        # Load hardening rules
+Include ~/.ssh/templates.conf        # Load host templates
 
-# Example: personal server
+# Personal server
 Host personal
-    HostName 192.168.1.10           # Server IP or hostname
-    User bashir                     # SSH username
-    IdentityFile ~/.ssh/id_rsa      # Private key for this host
-    Port 22                         # SSH port
+    HostName 192.168.1.10
+    User bashir
+    IdentityFile ~/.ssh/id_ed25519
+    Port 22
 
-# Example: GitHub
+# GitHub
 Host github
-    HostName github.com             # GitHub SSH endpoint
-    User git                        # Git user
-    IdentityFile ~/.ssh/id_ed25519  # Use modern key for GitHub
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
 
-# Example: work server
+# Work server
 Host work
-    HostName work.example.com       # Work server hostname
-    User bashir                     # SSH username
-    IdentityFile ~/.ssh/id_work     # Separate key for work
-    Port 22                         # SSH port
+    HostName work.example.com
+    User bashir
+    IdentityFile ~/.ssh/id_work
+    Port 22
 
-# Example: jump host / bastion
+# Bastion host
 Host bastion
-    HostName bastion.example.com    # Bastion host
-    User admin                      # Bastion username
-    IdentityFile ~/.ssh/id_bastion  # Key for bastion
+    HostName bastion.example.com
+    User admin
+    IdentityFile ~/.ssh/id_bastion
 
-# Example: connect to internal host via bastion
+# Internal host via bastion
 Host internal
-    HostName internal.example.com   # Internal host
-    User bashir                     # SSH username
-    ProxyJump bastion               # Route through bastion host
-    IdentityFile ~/.ssh/id_internal # Key for internal host
+    HostName internal.example.com
+    User bashir
+    ProxyJump bastion
+    IdentityFile ~/.ssh/id_internal
