@@ -1,0 +1,50 @@
+# ------------------------------------------------------------------------------
+# Global Git configuration for Linux + macOS.
+# Includes: identity, editor, diff tools, aliases, colors, GitHub SSH, and QoL.
+# ------------------------------------------------------------------------------
+
+[user]
+    name = Bashir Awaty                 # Your name for commits
+    email = bashir@example.com          # Your email for commits
+    signingkey = ~/.ssh/id_ed25519.pub  # Optional: commit signing via SSH
+
+[core]
+    editor = vim                        # Use vim for commit messages
+    pager = less -FRX                   # Better pager behavior
+    excludesfile = ~/.gitignore_global  # Global ignore file
+
+[color]
+    ui = auto                           # Enable colored output
+
+[alias]
+    st = status                         # git st
+    co = checkout                       # git co
+    br = branch                         # git br
+    lg = log --graph --decorate --all   # Pretty log graph
+    last = log -1 HEAD                  # Show last commit
+    unstage = reset HEAD --             # Undo git add
+    amend = commit --amend              # Amend last commit
+    df = diff --color                   # Colored diff
+    dfa = diff --color --cached         # Diff staged changes
+
+[push]
+    default = current                   # Push current branch only
+
+[pull]
+    rebase = true                       # Use rebase instead of merge
+
+[merge]
+    conflictstyle = diff3               # Better conflict markers
+
+[diff]
+    tool = vimdiff                      # Use vimdiff for merges
+    colorMoved = default                # Highlight moved lines
+
+[credential]
+    helper = store                      # Store credentials (macOS/Linux)
+
+[init]
+    defaultBranch = main                # Use main instead of master
+
+[github]
+    user = bashirawaty                  # GitHub username
